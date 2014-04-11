@@ -1,0 +1,28 @@
+package main
+
+import(
+    "github.com/bcleenders/security_challenge/cracker"
+)
+
+func main() {
+
+    plaintext := [12]uint8{
+        0x41, 0x42,
+        0x43, 0x44,
+        0x45, 0x46,
+        0x47, 0x48,
+        0x49, 0x4a,
+        0x4b, 0x4c,
+    }
+
+    ciphertext := [12]uint8{
+        0xfd, 0x2f,
+        0x1a, 0xcd,
+        0x06, 0x8b,
+        0x1b, 0xbc,
+        0x1e, 0x53,
+        0x50, 0xd4,
+    }
+
+    cracker.Crack(plaintext, ciphertext)
+}
