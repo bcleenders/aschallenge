@@ -12,7 +12,7 @@ func decrypt(ciphertext uint8, key uint8) (uint8) {
     return sboxInv[ciphertext ^ key]
 }
 
-func Encrypt(plaintext uint8, key0, key1, key2, key3, key4, key5, key6, key7, key8, key9 uint8) (uint8) {
+func Encrypt(plaintext, key0, key1, key2, key3, key4, key5, key6, key7, key8, key9 uint8) (uint8) {
     plaintext ^= key0
     plaintext = sbox[plaintext] ^ key1
     plaintext = sbox[plaintext] ^ key2
@@ -27,14 +27,45 @@ func Encrypt(plaintext uint8, key0, key1, key2, key3, key4, key5, key6, key7, ke
     return plaintext
 }
 
-func HextupleDecrypt(ciphertext uint8, key1 uint8, key2 uint8, key3 uint8, key4 uint8, key5 uint8, key6 uint8) (uint8) {
-    return sboxInv[sboxInv[sboxInv[sboxInv[sboxInv[sboxInv[ciphertext ^ key1] ^ key2] ^ key3]]^key4]^key5]^key6
+func Decrypt(ciphertext, key0, key1, key2, key3, key4, key5, key6, key7, key8, key9 uint8) (uint8) {
+    ciphertext ^= key9
+    ciphertext = sboxInv[ciphertext] ^ key8
+    ciphertext = sboxInv[ciphertext] ^ key7
+    ciphertext = sboxInv[ciphertext] ^ key6
+    ciphertext = sboxInv[ciphertext] ^ key5
+    ciphertext = sboxInv[ciphertext] ^ key4
+    ciphertext = sboxInv[ciphertext] ^ key3
+    ciphertext = sboxInv[ciphertext] ^ key2
+    ciphertext = sboxInv[ciphertext] ^ key1
+    ciphertext = sboxInv[ciphertext] ^ key0
+
+    return ciphertext
+}
+
+func HextupleDecrypt(ciphertext uint8, key4, key5, key6, key7, key8, key9 uint8) (uint8) {
+    ciphertext ^= key9
+    ciphertext = sboxInv[ciphertext] ^ key8
+    ciphertext = sboxInv[ciphertext] ^ key7
+    ciphertext = sboxInv[ciphertext] ^ key6
+    ciphertext = sboxInv[ciphertext] ^ key5
+    ciphertext = sboxInv[ciphertext] ^ key4
+
+    return ciphertext
 }
 
 /*
     Do a partial encrypt; first four bytes only.
     Key1 is used for the key whitening, key 2,3&4 are used for regular encryption rounds.
 */
-func QuadruppleEncrypt(plaintext uint8, key1 uint8, key2 uint8, key3 uint8, key4 uint8) (uint8) {
-    return sbox[sbox[sbox[plaintext ^ key1] ^ key2] ^ key3] ^ key4
+func QuadruppleEncrypt(plaintext uint8, key0, key1, key2, key3 uint8) (uint8) {
+    plaintext ^= key0
+    plaintext = sbox[plaintext] ^ key1
+    plaintext = sbox[plaintext] ^ key2
+    plaintext = sbox[plaintext] ^ key3
+
+    return plaintext
+}
+
+func EncryptFromArray(plaintext uint8, key [10]uint8) (uint8) {
+    return Encrypt(plaintext, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9])
 }
