@@ -26,8 +26,7 @@ func main() {
     }
 
     key := [10]uint8{
-        0,0,0,0,0,
-        0,0,0,0,0,
+        166, 33, 122, 0, 0, 12, 101, 101, 101, 101,
     }
 
     challengetext := []uint8 {
@@ -43,7 +42,7 @@ func main() {
 
     for i := 0; i < len(plaintext); i++ {
         cip := trippleWES.Encrypt(plaintext[i], key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9])
-        fmt.Printf("Enc(%v) = %8b (%8b expected)\n", plaintext[i], cip, ciphertext[i])
+        fmt.Printf("Enc(%8b) = %8b (%8b expected) -- %v %v %v\n", plaintext[i], cip, ciphertext[i], plaintext[i], cip, ciphertext[i])
     }
 
     for _, v := range challengetext {

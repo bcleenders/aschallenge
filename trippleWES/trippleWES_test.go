@@ -14,6 +14,16 @@ func testPartialEncryptDecrypt(t *testing.T) {
             t.Errorf("partialDecrypt == %v, want %v (1)", partialDecrypt, partialEncrypt)
         }
     }
+
+    for i := uint8(0); i <= uint8(255); i++ {
+        ciphertext := EncryptFromArray(i, key)
+        partialEncrypt := TrippleEncrypt(i, key[0], key[1], key[2])
+        partialDecrypt := SeptupleDecrypt(ciphertext, key[3], key[4], key[5], key[6], key[7], key[8], key[9])
+
+        if partialDecrypt != partialEncrypt {
+            t.Errorf("partialDecrypt == %v, want %v (1)", partialDecrypt, partialEncrypt)
+        }
+    }
 }
 
 func testSbox(t *testing.T) {
