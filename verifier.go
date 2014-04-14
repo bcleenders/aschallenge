@@ -26,8 +26,7 @@ func main() {
     }
 
     key := [10]uint8{
-        0,0,0,0,0,
-        0,0,0,0,0,
+        0, 90, 238, 27, 202, 178, 135, 135, 135, 135,
     }
 
     challengetext := []uint8 {
@@ -41,6 +40,10 @@ func main() {
         0x89, 0x4b,
     }
 
+    fmt.Println(trippleWES.QuadruppleEncrypt(plaintext[0], key[0], key[1], key[2], key[3]))
+    fmt.Println(trippleWES.HextupleDecrypt(ciphertext[0], key[4], key[5], key[6], key[7], key[8], key[9]))
+
+
     for i := 0; i < len(plaintext); i++ {
         cip := trippleWES.Encrypt(plaintext[i], key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9])
         fmt.Printf("Enc(%v) = %8b (%8b expected)\n", plaintext[i], cip, ciphertext[i])
@@ -50,4 +53,5 @@ func main() {
         plt := trippleWES.Decrypt(v, key[0], key[1], key[2], key[3], key[4], key[5], key[6], key[7], key[8], key[9])
         fmt.Printf("%v ", plt)
     }
+    fmt.Printf("\n")
 }

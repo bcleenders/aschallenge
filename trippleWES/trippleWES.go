@@ -49,6 +49,7 @@ func HextupleDecrypt(ciphertext uint8, key4, key5, key6, key7, key8, key9 uint8)
     ciphertext = sboxInv[ciphertext] ^ key6
     ciphertext = sboxInv[ciphertext] ^ key5
     ciphertext = sboxInv[ciphertext] ^ key4
+    ciphertext = sboxInv[ciphertext]
 
     return ciphertext
 }

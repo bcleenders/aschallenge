@@ -47,6 +47,11 @@ Te decrypten ciphertext (ASCII, ECB-mode):
 0f f6 a3 62 a5 b5 0f ca 0f 92 27 ca 13 62 14 bb
 b5 c0 bf 81 ca 89 20 89 a4 89 89 c7 89 4b
 
+# antwoord
+key := [10]uint8{ 0, 90, 238, 27, 202, 178, 135, 135, 135, 135 }
+plaintext := {97, 108, 103, 101, 98, 114, 97, 32, 97, 110, 100, 32, 115, 101, 99, 117, 114, 105, 116, 121, 32, 49, 57, 49, 53, 49, 49, 52, 49, 48}
+"algebra and security 191511410"
+
 ----------------------------------------------
 Zilver (laatste 3 sleutelbytes zijn gelijk):
 
