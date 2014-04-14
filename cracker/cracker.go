@@ -8,10 +8,11 @@ import(
 // First sorted by output, then no sort
 var keys [256][256][256][][3]uint8 // store [output][position][key]
 
+const numThreads = 4
 
-func Crack(plaintext [12]uint8, ciphertext [12]uint8) {
-    var i,j,k,l,m uint8
-    var ii, jj, kk, ll, mm int
+func Crack(plaintext, ciphertext [12]uint8) {
+    var i,j,k uint8
+    var ii, jj, kk int
     var dec0, dec1, dec2 uint8
 
     for ii = 0; ii < 256; ii++ {
@@ -30,12 +31,24 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8) {
         fmt.Println("Finished outer round keys building ", ii)
     }
 
+    ch := make(chan int)
+    for i := 0; i < numThreads; i++ {
+        go parallelCracking(plaintext, ciphertext, (i+128), numThreads, ch)
+    }
+    for i := 0; i < numThreads; i++ {
+        <-ch
+        fmt.Println("Thread finished.")
+    }
+}
 
-    // return
-    
+func parallelCracking(plaintext, ciphertext [12]uint8, start, stepsize int, ch chan int) {
+    var i,j,k,l,m uint8
+    var ii, jj, kk, ll, mm int
     var enc0, enc1, enc2 uint8
 
-    for ii = 0; ii < 256; ii++ {
+    fmt.Println("Thread started")
+
+    for ii = start; ii < 256; ii += stepsize{
         i = uint8(ii)
         for jj = 0; jj < 256; jj++ {
             j = uint8(jj)
@@ -56,14 +69,13 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8) {
                         }
                     }
                 }
-                // fmt.Println("Finished level 3 round breaking keys")
             }
-            // Occurs 256*256 = 65336 times
-            // fmt.Printf("Finished level 2 round breaking keys (%v)\n", time.Since(started))
         }
 
         fmt.Printf("Finished level 1 (#%v)round breaking keys\n",i)
     }
+
+    ch <- 0
 }
 
 func testGoodKey(i,j,k,l,m uint8, key *[3]uint8, plaintext, ciphertext *[12]uint8) {
@@ -72,9 +84,6 @@ func testGoodKey(i,j,k,l,m uint8, key *[3]uint8, plaintext, ciphertext *[12]uint
         if cip != ciphertext[n] {
             return
         }
-        // if n == 2 { // remember: we started at zero!
-        //     fmt.Println("Found one that matches five pairs!")
-        // }
     }
     fmt.Printf("Found key: %8b %8b %8b %8b %8b %8b %8b %8b %8b %8b \n", i,j,k,l,m,key[0],key[1],key[2],key[2],key[2])
     fmt.Printf("         = %v  %v  %v  %v  %v  %v  %v  %v  %v  %v  \n", i,j,k,l,m,key[0],key[1],key[2],key[2],key[2])

@@ -1,10 +1,18 @@
 package main
 
+/*
+go build -compiler gccgo main.go
+go build -o altair -compiler gccgo -gccgoflags '-static' main.go
+*/
+
 import(
     "github.com/bcleenders/security_challenge/cracker"
+    "runtime"
 )
 
 func main() {
+
+    runtime.GOMAXPROCS(4)
 
     plaintext := [12]uint8{
         0x41, 0x42, 0x43,
