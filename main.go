@@ -13,7 +13,7 @@ func main() {
     flag.IntVar(&start, "start", 0, "start value for the cracker (inclusive) default is 0")
     flag.IntVar(&end, "end", 256, "end value for the cracker (not inclusive) default is 0, max is 256")
     flag.Parse()
-    end = end % 256
+    end = end % 257
 
     plaintext := [12]uint8{
         0x41, 0x42, 0x43,
@@ -23,10 +23,9 @@ func main() {
     }
 
     ciphertext := [12]uint8{
-        0x51, 0xc4, 0x8e,
-        0xcb, 0xd0, 0xa0,
-        0xe8, 0x88, 0xe4,
-        0x9e, 0xf5, 0x3b,
+        0x43, 0x10, 0xf7, 0x76,
+        0xd6, 0x6c, 0x0c, 0x29,
+        0x97, 0x37, 0xe7, 0x98,
     }
 
     fmt.Printf("Start cracking from i=%v to i=%v\n", start, end)
