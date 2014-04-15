@@ -78,7 +78,7 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end int) {
                 }
                 k++
             }
-            fmt.Printf("\nFinished level 2 (#%v.%v)round breaking keys\n",i,j)
+            fmt.Printf(" (#%v.%v) ",i,j)
             j++
         }
         fmt.Printf("\nFinished level 1 (#%v)round breaking keys\n",i)
@@ -94,7 +94,7 @@ func testGoodKey(i,j,k,l,m,n uint8, key *[3]uint8, plaintext, ciphertext *[12]ui
             return
         }
     }
-    fmt.Println()
+    fmt.Println("\n\n\n FOUNDKEY \n\n\n")
     fmt.Printf("Found key: %8b %8b %8b %8b %8b %8b %8b %8b %8b %8b \n", i,j,k,l,m,key[0],key[1],key[2],key[2],key[2])
     fmt.Printf("         = %v  %v  %v  %v  %v  %v  %v  %v  %v  %v \n",  i,j,k,l,m,key[0],key[1],key[2],key[2],key[2])
 }
