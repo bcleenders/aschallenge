@@ -42,13 +42,12 @@ func Decrypt(ciphertext, key0, key1, key2, key3, key4, key5, key6, key7, key8, k
     return ciphertext
 }
 
-func HextupleDecrypt(ciphertext uint8, key4, key5, key6, key7, key8, key9 uint8) (uint8) {
+func SeptupleDecrypt(ciphertext uint8, key5, key6, key7, key8, key9 uint8) (uint8) {
     ciphertext ^= key9
     ciphertext = sboxInv[ciphertext] ^ key8
     ciphertext = sboxInv[ciphertext] ^ key7
     ciphertext = sboxInv[ciphertext] ^ key6
     ciphertext = sboxInv[ciphertext] ^ key5
-    ciphertext = sboxInv[ciphertext] ^ key4
     ciphertext = sboxInv[ciphertext]
 
     return ciphertext
@@ -58,11 +57,12 @@ func HextupleDecrypt(ciphertext uint8, key4, key5, key6, key7, key8, key9 uint8)
     Do a partial encrypt; first four bytes only.
     Key1 is used for the key whitening, key 2,3&4 are used for regular encryption rounds.
 */
-func QuadruppleEncrypt(plaintext uint8, key0, key1, key2, key3 uint8) (uint8) {
+func SeptupleEncrypt(plaintext uint8, key0, key1, key2, key3, key4 uint8) (uint8) {
     plaintext ^= key0
     plaintext = sbox[plaintext] ^ key1
     plaintext = sbox[plaintext] ^ key2
     plaintext = sbox[plaintext] ^ key3
+    plaintext = sbox[plaintext] ^ key4
 
     return plaintext
 }

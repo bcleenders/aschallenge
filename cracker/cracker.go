@@ -9,9 +9,9 @@ import(
 var keys [256][256][256][][3]uint8 // store [output][position][key]
 
 
-func Crack(plaintext [12]uint8, ciphertext [12]uint8) {
-    var i,j,k,l uint8
-    var ii, jj, kk, ll int
+func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end int) {
+    var i,j,k,l,m uint8
+    var ii, jj, kk, ll, mm int
     var dec0, dec1, dec2 uint8
 
     for ii = 0; ii < 256; ii++ {
@@ -20,18 +20,20 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8) {
             j = uint8(jj)
             for kk = 0; kk < 256; kk++ {
                 k = uint8(kk)
-                dec0 = trippleWES.HextupleDecrypt(ciphertext[0], i, j, k, k, k, k)
-                dec1 = trippleWES.HextupleDecrypt(ciphertext[1], i, j, k, k, k, k)
-                dec2 = trippleWES.HextupleDecrypt(ciphertext[2], i, j, k, k, k, k)
+                dec0 = trippleWES.SeptupleDecrypt(ciphertext[0], i, j, k, k, k)
+                dec1 = trippleWES.SeptupleDecrypt(ciphertext[1], i, j, k, k, k)
+                dec2 = trippleWES.SeptupleDecrypt(ciphertext[2], i, j, k, k, k)
 
                 keys[dec0][dec1][dec2] = append(keys[dec0][dec1][dec2], [3]uint8{i,j,k})
             }
         }
     }
+
+    fmt.Println("Finished building key dictionary")
     
     var enc0, enc1, enc2 uint8
 
-    for ii = 0; ii < 256; ii++ {
+    for ii = start; ii < end; ii++ {
         i = uint8(ii)
         for jj = 0; jj < 256; jj++ {
             j = uint8(jj)
@@ -39,40 +41,37 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8) {
                 k = uint8(kk)
                 for ll = 0; ll < 256; ll++ {
                     l = uint8(ll)
+                    for mm = 0; mm < 256; mm++ {
+                        m = uint8(mm)
 
-                    enc0 = trippleWES.QuadruppleEncrypt(plaintext[0], i, j, k, l)
-                    enc1 = trippleWES.QuadruppleEncrypt(plaintext[1], i, j, k, l)
-                    enc2 = trippleWES.QuadruppleEncrypt(plaintext[2], i, j, k, l)
+                        enc0 = trippleWES.SeptupleEncrypt(plaintext[0], i, j, k, l,m)
+                        enc1 = trippleWES.SeptupleEncrypt(plaintext[1], i, j, k, l,m)
+                        enc2 = trippleWES.SeptupleEncrypt(plaintext[2], i, j, k, l,m)
 
-                    for _, key := range keys[enc0][enc1][enc2] {
-                        // if ciphertext[0] != trippleWES.Encrypt(plaintext[0], i,j,k,l,keys[enc0][enc1][enc2][0][0],keys[enc0][enc1][enc2][0][1],keys[enc0][enc1][enc2][0][2],keys[enc0][enc1][enc2][0][2],keys[enc0][enc1][enc2][0][2],keys[enc0][enc1][enc2][0][2]) {
-                        //     fmt.Println("Ciphertext did not match")
-                        // } else {
-                        //     fmt.Println("Ciphertext did match")
-                        // }
-                        testGoodKey(i,j,k,l, &key, &plaintext, &ciphertext)
+                        for _, key := range keys[enc0][enc1][enc2] {
+                            testGoodKey(i,j,k,l,m, &key, &plaintext, &ciphertext)
+                        }
                     }
                 }
-                // fmt.Println("Finished level 3 round breaking keys")
+                // if kk % 10 == 0 {
+                //     fmt.Printf(".")
+                // }
             }
-            // Occurs 256*256 = 65336 times
-            // fmt.Printf("Finished level 2 round breaking keys (%v)\n", time.Since(started))
+            fmt.Printf("%v.%v\n",ii,jj)
         }
-
-        fmt.Printf("Finished level 1 (#%v)round breaking keys\n",i)
+        fmt.Printf("\nFinished level 1 (#%v)round breaking keys\n",i)
     }
 }
 
-func testGoodKey(i,j,k,l uint8, key *[3]uint8, plaintext, ciphertext *[12]uint8) {
-    for n := 0; n < 12; n++ {
-        cip := trippleWES.Encrypt(plaintext[n], i,j,k,l,key[0],key[1],key[2],key[2],key[2],key[2])
+func testGoodKey(i,j,k,l,m uint8, key *[3]uint8, plaintext, ciphertext *[12]uint8) {
+    // 0, 1 and 2 already match; skip checking those!
+    for n := 3; n < 12; n++ {
+        cip := trippleWES.Encrypt(plaintext[n], i,j,k,l,m,key[0],key[1],key[2],key[2],key[2])
         if cip != ciphertext[n] {
             return
         }
-        // if n == 2 { // remember: we started at zero!
-        //     fmt.Println("Found one that matches five pairs!")
-        // }
     }
-    fmt.Printf("Found key: %8b %8b %8b %8b %8b %8b %8b %8b %8b %8b \n", i,j,k,l,key[0],key[1],key[2],key[2],key[2],key[2])
-    fmt.Printf("         = %v  %v  %v  %v  %v  %v  %v  %v  %v  %v \n", i,j,k,l,key[0],key[1],key[2],key[2],key[2],key[2])
+    fmt.Println()
+    fmt.Printf("Found key: %8b %8b %8b %8b %8b %8b %8b %8b %8b %8b \n", i,j,k,l,m,key[0],key[1],key[2],key[2],key[2])
+    fmt.Printf("         = %v  %v  %v  %v  %v  %v  %v  %v  %v  %v \n",  i,j,k,l,m,key[0],key[1],key[2],key[2],key[2])
 }
