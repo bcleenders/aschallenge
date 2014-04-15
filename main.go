@@ -13,7 +13,7 @@ func main() {
     flag.IntVar(&start, "start", 0, "start value for the cracker (inclusive) default is 0")
     flag.IntVar(&end, "end", 256, "end value for the cracker (not inclusive) default is 0, max is 256")
     flag.Parse()
-    end = end % 256
+    end = end % 257
 
     plaintext := [12]uint8{
         0x41, 0x42, 0x43,
