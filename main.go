@@ -5,18 +5,23 @@ package main
 
 import(
     "github.com/bcleenders/security_challenge/cracker"
-    "flag"
+    // "flag"
     "fmt"
+    "runtime"
 )
 
 func main() {
-    var start int
-    var end int
+    runtime.GOMAXPROCS(runtime.NumCPU())
 
-    flag.IntVar(&start, "start", 0, "start value for the cracker (inclusive) default is 0")
-    flag.IntVar(&end, "end", 256, "end value for the cracker (not inclusive) default is 0, max is 256")
-    flag.Parse()
-    end = end % 257
+    fmt.Printf("Starting on %v cores.\n", runtime.NumCPU())
+
+    // var start int
+    // var end int
+
+    // flag.IntVar(&start, "start", 0, "start value for the cracker (inclusive) default is 0")
+    // flag.IntVar(&end, "end", 256, "end value for the cracker (not inclusive) default is 0, max is 256")
+    // flag.Parse()
+    // end = end % 257
 
     plaintext := [12]uint8{
         0x41, 0x42, 0x43,
@@ -31,6 +36,6 @@ func main() {
         0x97, 0x37, 0xe7, 0x98,
     }
 
-    fmt.Printf("Start cracking from i=%v to i=%v\n", start, end)
-    cracker.Crack(plaintext, ciphertext, start, end)
+    // fmt.Printf("Start cracking from i=%v to i=%v\n", start, end)
+    cracker.Crack(plaintext, ciphertext, runtime.NumCPU())
 }

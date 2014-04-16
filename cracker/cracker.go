@@ -5,76 +5,110 @@ import(
     "github.com/bcleenders/security_challenge/trippleWES"
 )
 
-func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end int) {
-    crackPartial(plaintext, ciphertext, start, end, 0, 60,)
-    crackPartial(plaintext, ciphertext, start, end, 60, 120)
-    crackPartial(plaintext, ciphertext, start, end, 120, 180)
-    crackPartial(plaintext, ciphertext, start, end, 180, 240)
-    crackPartial(plaintext, ciphertext, start, end, 240, 255)
+type keyEntry struct {
+    Key [4]uint8
+    DecryptedValues [9]uint8
 }
 
+var keys [256][256][256][2][]keyEntry
 
-func crackPartial(plaintext [12]uint8, ciphertext [12]uint8, starti, endi, startk, endk int) {
-    // First sorted by output, then no sort
-    var keys [256][256][256][][4]uint8
+func Crack(plaintext [12]uint8, ciphertext [12]uint8, numcpu int) {
+    var i,j,k,l uint8
+    var ii, jj, kk, ll int
 
-    var i,j,k,l,m uint8
-    var ii, jj, kk, ll, mm int
-    var dec0, dec1, dec2 uint8
+    i,j,k,l = uint8(0), uint8(0), uint8(0), uint8(0)
+    var decrypted [5][12]uint8
+    var even uint8
 
-    i,j,k,l = uint8(startk), uint8(0), uint8(0), uint8(0)
-    for ii = startk; ii < endk; ii++ {
-        for jj = 0; jj < 256; jj++ {
-            for kk = 0; kk < 256; kk++ {
-                for ll = 0; ll < 256; ll++ {
-                    l = uint8(ll)
-                    dec0 = trippleWES.SeptupleDecrypt(ciphertext[0], i, j, k, l, l)
-                    dec1 = trippleWES.SeptupleDecrypt(ciphertext[1], i, j, k, l, l)
-                    dec2 = trippleWES.SeptupleDecrypt(ciphertext[2], i, j, k, l, l)
-
-                    keys[dec0][dec1][dec2] = append(keys[dec0][dec1][dec2], [4]uint8{i,j,k,l})
-                }
-                l++
-            }
-            k++
+    for ii = 0; ii < 256; ii++ {
+        for x := 0; x < 12; x++ {
+            decrypted[0][x] = ciphertext[x] ^ i
         }
+
+        for jj = 0; jj < 256; jj++ {
+            for x := 0; x < 12; x++ {
+                decrypted[1][x] = trippleWES.SboxInv[decrypted[0][x]] ^ j
+            }
+
+            for kk = 0; kk < 256; kk++ {
+                for x := 0; x < 12; x++ {
+                    decrypted[2][x] = trippleWES.SboxInv[decrypted[1][x]] ^ k
+                }
+
+                for ll = 0; ll < 256; ll++ {
+                    for x := 0; x < 12; x++ {
+                        decrypted[3][x] = trippleWES.SboxInv[decrypted[2][x]] ^ l
+                        decrypted[4][x] = trippleWES.SboxInv[decrypted[3][x]] ^ l
+                    }
+
+                    even = decrypted[4][3] % 2
+                    keys[decrypted[4][0]][decrypted[4][1]][decrypted[4][2]][even] = append(keys[decrypted[4][0]][decrypted[4][1]][decrypted[4][2]][even], keyEntry{ [4]uint8{i,j,k,l}, [9]uint8{decrypted[4][3], decrypted[4][4], decrypted[4][5], decrypted[4][6], decrypted[4][7], decrypted[4][8], decrypted[4][9], decrypted[4][10], decrypted[4][11] } })
+
+                    l++
+                }
+                k++
+            }
+            j++
+        }
+        fmt.Println("Finished key building round ", i)
         i++
     }
 
     fmt.Println("Finished building key dictionary")
-    
-    var enc0, enc1, enc2 [6]uint8
 
-    i,j,k,l,m = uint8(starti), uint8(0), uint8(0), uint8(0), uint8(0)
+    ch := make(chan int)
+    stepSize := 256/numcpu
+    for x := 0; x < numcpu; x++ {
+        go parallelCrack(plaintext, ciphertext, (x*stepSize), (x*stepSize + stepSize), x, ch)
+    }
+    for x := 0; x < numcpu; x++ {
+        id := <-ch
+        fmt.Printf("\nThread %v finished.\n", id)
+    }
+}
 
-    for ii = starti; ii < endi; ii++ {
-        enc0[0] = plaintext[0] ^ i
-        enc1[0] = plaintext[1] ^ i
-        enc2[0] = plaintext[2] ^ i
+func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan int) {
+    // Let them know we're in action!
+    fmt.Printf("Starting thread from i=%v to i=%v.\n", start, end)
 
-        for jj = 0; jj < 256; jj++ {
-            enc0[1] = trippleWES.Sbox[enc0[0]] ^ j
-            enc1[1] = trippleWES.Sbox[enc1[0]] ^ j
-            enc2[1] = trippleWES.Sbox[enc2[0]] ^ j
+    var i,j,k,l,m uint8
+    var ii, jj, kk, ll, mm int
+    var enc [6][12]uint8
+    var even uint8
 
-            for kk = 0; kk < 256; kk++ {
-                enc0[2] = trippleWES.Sbox[enc0[1]] ^ k
-                enc1[2] = trippleWES.Sbox[enc1[1]] ^ k
-                enc2[2] = trippleWES.Sbox[enc2[1]] ^ k
+    i,j,k,l,m = uint8(start), uint8(0), uint8(0), uint8(0), uint8(0)
 
-                for ll = 0; ll < 256; ll++ {
-                    enc0[3] = trippleWES.Sbox[enc0[2]] ^ l
-                    enc1[3] = trippleWES.Sbox[enc1[2]] ^ l
-                    enc2[3] = trippleWES.Sbox[enc2[2]] ^ l
+    for ii = start; ii < end; ii++ { // (end-start) times
+        for x := 0; x < 12; x++ {
+            enc[0][x] = plaintext[x] ^ i
+        }
 
-                    for mm = 0; mm < 256; mm++ {
-                        enc0[4] = trippleWES.Sbox[enc0[3]] ^ m
-                        enc1[4] = trippleWES.Sbox[enc1[3]] ^ m
-                        enc2[4] = trippleWES.Sbox[enc2[3]] ^ m
+        for jj = 0; jj < 256; jj++ { // 256*(end-start) times
+            for x := 0; x < 12; x++ {
+                enc[1][x] = trippleWES.Sbox[enc[0][x]] ^ j
+            }
 
-                        if keys[enc0[4]][enc1[4]][enc2[4]] != nil {
-                            for _, key := range keys[enc0[4]][enc1[4]][enc2[4]] {
-                                testGoodKey(i,j,k,l,m, &key, &plaintext, &ciphertext)
+            for kk = 0; kk < 256; kk++ { // 65536*(end-start) times
+                for x := 0; x < 12; x++ {
+                    enc[2][x] = trippleWES.Sbox[enc[1][x]] ^ k
+                }
+
+                for ll = 0; ll < 256; ll++ { // 16777216*(end-start) times -- sixteen million
+                    for x := 0; x < 12; x++ {
+                        enc[3][x] = trippleWES.Sbox[enc[2][x]] ^ l
+                    }
+
+                    for mm = 0; mm < 256; mm++ { // 4294967296*(end-start) times -- four billion
+                        for x := 0; x < 12; x++ {
+                            enc[4][x] = trippleWES.Sbox[enc[3][x]] ^ m
+                        }
+
+                        even = enc[4][3]%2
+                        for _, key := range keys[enc[4][0]][enc[4][1]][enc[4][2]][even] {
+                            if testGoodKey(&enc[4], &key) {
+                                fmt.Println("\n\n\n FOUNDKEY \n\n\n")
+                                fmt.Printf("Found key: %8b %8b %8b %8b %8b %8b %8b %8b %8b %8b \n", i,j,k,l,m,key.Key[0],key.Key[1],key.Key[2],key.Key[3],key.Key[3])
+                                fmt.Printf("         = %v  %v  %v  %v  %v  %v  %v  %v  %v  %v \n",  i,j,k,l,m,key.Key[0],key.Key[1],key.Key[2],key.Key[3],key.Key[3])
                             }
                         }
                         m++
@@ -82,24 +116,28 @@ func crackPartial(plaintext [12]uint8, ciphertext [12]uint8, starti, endi, start
                     l++
                 }
                 k++
+                fmt.Printf(".")
             }
-            fmt.Printf(" (#%v.%v) ",i,j)
+            if (j+1)%16 == 0 {
+                fmt.Printf(" (#%v.%v) ",i,j)
+            }
             j++
         }
         fmt.Printf("\nFinished level 1 (#%v)round breaking keys\n",i)
         i++
     }
+
+    // Finished!
+    ch <- id
 }
 
-func testGoodKey(i,j,k,l,m uint8, key *[4]uint8, plaintext, ciphertext *[12]uint8) {
+func testGoodKey(encrypted *[12]uint8, keyEntry *keyEntry) (bool) {
     // 0, 1 and 2 already match; skip checking those!
-    for x := 3; x < 12; x++ {
-        cip := trippleWES.Encrypt(plaintext[x], i,j,k,l,m,key[0],key[1],key[2],key[3],key[3])
-        if cip != ciphertext[x] {
-            return
+    for x := 0; x < 9; x++ {
+        if keyEntry.DecryptedValues[x] != encrypted[x + 3] {
+            return false
         }
     }
-    fmt.Println("\n\n\n FOUNDKEY \n\n\n")
-    fmt.Printf("Found key: %8b %8b %8b %8b %8b %8b %8b %8b %8b %8b \n", i,j,k,l,m,key[0],key[1],key[2],key[2],key[2])
-    fmt.Printf("         = %v  %v  %v  %v  %v  %v  %v  %v  %v  %v \n",  i,j,k,l,m,key[0],key[1],key[2],key[2],key[2])
+
+    return true
 }
