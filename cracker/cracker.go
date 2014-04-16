@@ -38,7 +38,7 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, numcpu int) {
                 for ll = 0; ll < 256; ll++ {
                     for x := 0; x < 12; x++ {
                         decrypted[3][x] = trippleWES.SboxInv[decrypted[2][x]] ^ l
-                        decrypted[4][x] = trippleWES.SboxInv[decrypted[3][x]] ^ l
+                        decrypted[4][x] = trippleWES.SboxInv[trippleWES.SboxInv[decrypted[3][x]] ^ l]
                     }
 
                     even = decrypted[4][3] % 2
