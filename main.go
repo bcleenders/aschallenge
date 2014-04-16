@@ -1,5 +1,8 @@
 package main
 
+// go build -o "Gold cracker mediumDict GCC O3" -compiler gccgo -gccgoflags '-static -O3' main.go
+// goxc -n="Gold cracker mediumDict" -os="linux" -arch="amd64"
+
 import(
     "github.com/bcleenders/security_challenge/cracker"
     "flag"
