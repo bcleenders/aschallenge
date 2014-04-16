@@ -116,7 +116,6 @@ func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan 
                     l++
                 }
                 k++
-                fmt.Printf(".")
             }
             if (j+1)%16 == 0 {
                 fmt.Printf(" (#%v.%v) ",i,j)
