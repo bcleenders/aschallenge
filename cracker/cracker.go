@@ -33,7 +33,7 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end int) {
     
     var enc0, enc1, enc2 [6]uint8
 
-    i,j,k,l,m,n = uint8(0), uint8(0), uint8(0), uint8(0), uint8(0), uint8(0)
+    i,j,k,l,m,n = uint8(start), uint8(0), uint8(0), uint8(0), uint8(0), uint8(0)
 
     for ii = start; ii < end; ii++ {
         enc0[0] = plaintext[0] ^ i
