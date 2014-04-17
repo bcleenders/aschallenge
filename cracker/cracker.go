@@ -10,7 +10,7 @@ type keyEntry struct {
     DecryptedValues [9]uint8
 }
 
-var keys [256][256][256][2][]keyEntry
+var keys [256][256][256][4][]keyEntry
 
 func Crack(plaintext [12]uint8, ciphertext [12]uint8, numcpu int) {
     var i,j,k,l uint8
@@ -41,7 +41,7 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, numcpu int) {
                         decrypted[4][x] = trippleWES.SboxInv[trippleWES.SboxInv[decrypted[3][x]] ^ l]
                     }
 
-                    even = decrypted[4][3] % 2
+                    even = decrypted[4][3] & 3
                     keys[decrypted[4][0]][decrypted[4][1]][decrypted[4][2]][even] = append(keys[decrypted[4][0]][decrypted[4][1]][decrypted[4][2]][even], keyEntry{ [4]uint8{i,j,k,l}, [9]uint8{decrypted[4][3], decrypted[4][4], decrypted[4][5], decrypted[4][6], decrypted[4][7], decrypted[4][8], decrypted[4][9], decrypted[4][10], decrypted[4][11] } })
 
                     l++
@@ -103,7 +103,7 @@ func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan 
                             enc[4][x] = trippleWES.Sbox[enc[3][x]] ^ m
                         }
 
-                        even = enc[4][3]%2
+                        even = enc[4][3] & 3
                         for _, key := range keys[enc[4][0]][enc[4][1]][enc[4][2]][even] {
                             if testGoodKey(&enc[4], &key) {
                                 fmt.Println("\n\n\n FOUNDKEY \n\n\n")
