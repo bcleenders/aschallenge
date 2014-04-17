@@ -7,7 +7,7 @@ import(
 
 type keyEntry struct {
     Key [4]uint8
-    DecryptedValues [9]uint8
+    DecryptedValues [8]uint8
 }
 
 func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end, memSteps, numcpu int) {
@@ -39,17 +39,18 @@ func crackSerial(plaintext [12]uint8, ciphertext [12]uint8, start, end, numcpu, 
                 decrypted[1][x] = trippleWES.SboxInv[decrypted[0][x]] ^ j
             }
 
+            // TEST ME WITH 2
             for kk = 0; kk < 256; kk++ {
                 for x := 0; x < 12; x++ {
                     decrypted[2][x] = trippleWES.SboxInv[decrypted[1][x]] ^ k
                 }
-
+                // TEST ME WITH 4
                 for ll = 0; ll < 256; ll++ {
                     for x := 0; x < 12; x++ {
                         decrypted[3][x] = trippleWES.SboxInv[trippleWES.SboxInv[decrypted[2][x]] ^ l]
                     }
 
-                    keys[decrypted[3][0]][decrypted[3][1]][decrypted[3][2]][decrypted[3][3]] = append(keys[decrypted[3][0]][decrypted[3][1]][decrypted[3][2]][decrypted[3][3]], keyEntry{ [4]uint8{i,j,k,l}, [9]uint8{decrypted[3][3], decrypted[3][4], decrypted[3][5], decrypted[3][6], decrypted[3][7], decrypted[3][8], decrypted[3][9], decrypted[3][10], decrypted[3][11] } })
+                    keys[decrypted[3][0]][decrypted[3][1]][decrypted[3][2]][decrypted[3][3]] = append(keys[decrypted[3][0]][decrypted[3][1]][decrypted[3][2]][decrypted[3][3]], keyEntry{ [4]uint8{i,j,k,l}, [8]uint8{decrypted[3][4], decrypted[3][5], decrypted[3][6], decrypted[3][7], decrypted[3][8], decrypted[3][9], decrypted[3][10], decrypted[3][11] } })
 
                     l++
                 }
@@ -144,8 +145,8 @@ func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan 
 
 func testGoodKey(encrypted *[12]uint8, keyEntry *keyEntry) (bool) {
     // 0, 1 and 2 already match; skip checking those!
-    for x := 0; x < 9; x++ {
-        if keyEntry.DecryptedValues[x] != encrypted[x + 3] {
+    for x := 0; x < 8; x++ {
+        if keyEntry.DecryptedValues[x] != encrypted[x + 4] {
             return false
         }
     }

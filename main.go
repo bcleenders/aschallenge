@@ -38,6 +38,19 @@ func main() {
         0x49, 0x9a, 0x58, 0x91, 
     }
 
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // // TEST VALUE
+    // ciphertext := [12]uint8{135, 231, 33, 121, 248, 255, 38, 28, 176, 106, 77, 31, }
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+
     fmt.Printf("Start cracking from i=%v to i=%v\n", start, end)
     cracker.Crack(plaintext, ciphertext, start, end, memSteps, runtime.NumCPU())
 }
