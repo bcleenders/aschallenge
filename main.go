@@ -5,7 +5,7 @@ package main
 
 import(
     "github.com/bcleenders/security_challenge/cracker"
-    // "flag"
+    "flag"
     "fmt"
     "runtime"
 )
@@ -15,13 +15,15 @@ func main() {
 
     fmt.Printf("Starting on %v cores.\n", runtime.NumCPU())
 
-    // var start int
-    // var end int
+    var start int
+    var end int
+    var memSteps int
 
-    // flag.IntVar(&start, "start", 0, "start value for the cracker (inclusive) default is 0")
-    // flag.IntVar(&end, "end", 256, "end value for the cracker (not inclusive) default is 0, max is 256")
-    // flag.Parse()
-    // end = end % 257
+    flag.IntVar(&start, "start", 0, "start value for the cracker (inclusive) default is 0")
+    flag.IntVar(&end, "end", 256, "end value for the cracker (not inclusive) default is 0, max is 256")
+    flag.IntVar(&memSteps, "memSteps", 256, "number of ")
+    flag.Parse()
+    end = end % 257
 
     plaintext := [12]uint8{
         0x41, 0x42, 0x43,
@@ -31,11 +33,11 @@ func main() {
     }
 
     ciphertext := [12]uint8{
-        0x43, 0x10, 0xf7, 0x76,
-        0xd6, 0x6c, 0x0c, 0x29,
-        0x97, 0x37, 0xe7, 0x98,
+        0x13, 0x2c, 0xf1, 0xa4, 
+        0xdc, 0xfa, 0xdb, 0x6d, 
+        0x49, 0x9a, 0x58, 0x91, 
     }
 
-    // fmt.Printf("Start cracking from i=%v to i=%v\n", start, end)
-    cracker.Crack(plaintext, ciphertext, runtime.NumCPU())
+    fmt.Printf("Start cracking from i=%v to i=%v\n", start, end)
+    cracker.Crack(plaintext, ciphertext, start, end, memSteps, runtime.NumCPU())
 }

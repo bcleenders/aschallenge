@@ -10,17 +10,26 @@ type keyEntry struct {
     DecryptedValues [9]uint8
 }
 
-var keys [256][256][256][2][]keyEntry
+func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end, memSteps, numcpu int) {
+    for startKeys := 0; startKeys < 256; startKeys = startKeys + memSteps {
+        endKeys := startKeys + memSteps
+        if endKeys > 256 {
+            endKeys = 256
+        }
+        
+        crackSerial(plaintext, ciphertext, start, end, numcpu, startKeys, endKeys)
+    }
+}
 
-func Crack(plaintext [12]uint8, ciphertext [12]uint8, numcpu int) {
+func crackSerial(plaintext [12]uint8, ciphertext [12]uint8, start, end, numcpu, startKeys, endKeys int) {
     var i,j,k,l uint8
     var ii, jj, kk, ll int
 
-    i,j,k,l = uint8(0), uint8(0), uint8(0), uint8(0)
+    i,j,k,l = uint8(startKeys), uint8(0), uint8(0), uint8(0)
+    var keys [256][256][256][256][]keyEntry
     var decrypted [5][12]uint8
-    var even uint8
 
-    for ii = 0; ii < 256; ii++ {
+    for ii = startKeys; ii < endKeys; ii++ {
         for x := 0; x < 12; x++ {
             decrypted[0][x] = ciphertext[x] ^ i
         }
@@ -37,12 +46,10 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, numcpu int) {
 
                 for ll = 0; ll < 256; ll++ {
                     for x := 0; x < 12; x++ {
-                        decrypted[3][x] = trippleWES.SboxInv[decrypted[2][x]] ^ l
-                        decrypted[4][x] = trippleWES.SboxInv[decrypted[3][x]] ^ l
+                        decrypted[3][x] = trippleWES.SboxInv[trippleWES.SboxInv[decrypted[2][x]] ^ l]
                     }
 
-                    even = decrypted[4][3] % 2
-                    keys[decrypted[4][0]][decrypted[4][1]][decrypted[4][2]][even] = append(keys[decrypted[4][0]][decrypted[4][1]][decrypted[4][2]][even], keyEntry{ [4]uint8{i,j,k,l}, [9]uint8{decrypted[4][3], decrypted[4][4], decrypted[4][5], decrypted[4][6], decrypted[4][7], decrypted[4][8], decrypted[4][9], decrypted[4][10], decrypted[4][11] } })
+                    keys[decrypted[3][0]][decrypted[3][1]][decrypted[3][2]][decrypted[3][3]] = append(keys[decrypted[3][0]][decrypted[3][1]][decrypted[3][2]][decrypted[3][3]], keyEntry{ [4]uint8{i,j,k,l}, [9]uint8{decrypted[3][3], decrypted[3][4], decrypted[3][5], decrypted[3][6], decrypted[3][7], decrypted[3][8], decrypted[3][9], decrypted[3][10], decrypted[3][11] } })
 
                     l++
                 }
@@ -59,7 +66,7 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, numcpu int) {
     ch := make(chan int)
     stepSize := 256/numcpu
     for x := 0; x < numcpu; x++ {
-        go parallelCrack(plaintext, ciphertext, (x*stepSize), (x*stepSize + stepSize), x, ch)
+        go parallelCrack(plaintext, ciphertext, (x*stepSize), (x*stepSize + stepSize), x, ch, &keys)
     }
     for x := 0; x < numcpu; x++ {
         id := <-ch
@@ -67,16 +74,15 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, numcpu int) {
     }
 }
 
-func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan int) {
+func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan int, keys *[256][256][256][256][]keyEntry) {
     // Let them know we're in action!
     fmt.Printf("Starting thread from i=%v to i=%v.\n", start, end)
 
-    var i,j,k,l,m uint8
-    var ii, jj, kk, ll, mm int
+    var i,j,k,l,m,n uint8
+    var ii, jj, kk, ll, mm, nn int
     var enc [6][12]uint8
-    var even uint8
 
-    i,j,k,l,m = uint8(start), uint8(0), uint8(0), uint8(0), uint8(0)
+    i,j,k,l,m, n = uint8(start), uint8(0), uint8(0), uint8(0), uint8(0), uint8(0)
 
     for ii = start; ii < end; ii++ { // (end-start) times
         for x := 0; x < 12; x++ {
@@ -103,13 +109,19 @@ func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan 
                             enc[4][x] = trippleWES.Sbox[enc[3][x]] ^ m
                         }
 
-                        even = enc[4][3]%2
-                        for _, key := range keys[enc[4][0]][enc[4][1]][enc[4][2]][even] {
-                            if testGoodKey(&enc[4], &key) {
-                                fmt.Println("\n\n\n FOUNDKEY \n\n\n")
-                                fmt.Printf("Found key: %8b %8b %8b %8b %8b %8b %8b %8b %8b %8b \n", i,j,k,l,m,key.Key[0],key.Key[1],key.Key[2],key.Key[3],key.Key[3])
-                                fmt.Printf("         = %v  %v  %v  %v  %v  %v  %v  %v  %v  %v \n",  i,j,k,l,m,key.Key[0],key.Key[1],key.Key[2],key.Key[3],key.Key[3])
+                        for nn = 0; nn < 256; nn++ { // 256*4294967296*(end-start) times -- four billion
+                            for x := 0; x < 12; x++ {
+                                enc[5][x] = trippleWES.Sbox[enc[4][x]] ^ n
                             }
+
+                            for _, key := range keys[enc[5][0]][enc[5][1]][enc[5][2]][enc[5][3]] {
+                                if testGoodKey(&enc[5], &key) {
+                                    fmt.Println("\n\n\n FOUNDKEY \n\n\n")
+                                    fmt.Printf("Found key: %8b %8b %8b %8b %8b %8b %8b %8b %8b %8b \n", i,j,k,l,m,n,key.Key[0],key.Key[1],key.Key[2],key.Key[3])
+                                    fmt.Printf("         = %v  %v  %v  %v  %v  %v  %v  %v  %v  %v \n",  i,j,k,l,m,n,key.Key[0],key.Key[1],key.Key[2],key.Key[3])
+                                }
+                            }
+                            n++
                         }
                         m++
                     }
