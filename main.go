@@ -30,24 +30,11 @@ func main() {
         0x4a, 0x4b, 0x4c,
     }
 
-    // ciphertext := [12]uint8{
-    //     0x13, 0x2c, 0xf1, 0xa4, 
-    //     0xdc, 0xfa, 0xdb, 0x6d, 
-    //     0x49, 0x9a, 0x58, 0x91, 
-    // }
-
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // TEST VALUE
-    ciphertext := [12]uint8{190, 53, 207, 96, 115, 228, 186, 3, 157, 49, 60, 211, }
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    ciphertext := [12]uint8{
+        0x13, 0x2c, 0xf1, 0xa4, 
+        0xdc, 0xfa, 0xdb, 0x6d, 
+        0x49, 0x9a, 0x58, 0x91, 
+    }
 
     fmt.Printf("Start cracking from i=%v to i=%v\n", start, end)
     cracker.Crack(plaintext, ciphertext, start, end, runtime.NumCPU())

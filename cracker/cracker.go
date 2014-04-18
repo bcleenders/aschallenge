@@ -20,13 +20,9 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end, numcpu int) {
     var decrypted [12]uint8
 
     for ii = 0; ii < 256; ii++ {
-        fmt.Println("Did you think about changing kk<2 and ll<4 back?")
-
         for jj = 0; jj < 256; jj++ {
-            // TEST ME WITH 2
-            for kk = 0; kk < 4; kk++ {
-                // TEST ME WITH 4
-                for ll = 0; ll < 4; ll++ {
+            for kk = 0; kk < 256; kk++ {
+                for ll = 0; ll < 256; ll++ {
                     for x := 0; x < 12; x++ {
                         decrypted[x] = trippleWES.SeptupleDecrypt(ciphertext[x], i,j,k,l,l)
                     }
@@ -35,10 +31,13 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end, numcpu int) {
 
                     l++
                 }
+                l = uint8(0)
                 k++
             }
+            k = uint8(0)
             j++
         }
+        j = uint8(0)
         fmt.Println("Finished key building round ", i)
         i++
     }
@@ -101,13 +100,20 @@ func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan 
                         }
                         m++
                     }
+                    m = uint8(0)
                     l++
                 }
+                l = uint8(0)
                 k++
             }
-            fmt.Printf(" (#%v.%v) ",i,j)
+            k = uint8(0)
+
+            if j%16 == 0 {
+                fmt.Printf(" (#%v.%v) ",i,j)                
+            }
             j++
         }
+        j = uint8(0)
         fmt.Printf("\nFinished level 1 (#%v)round breaking keys\n",i)
         i++
     }
