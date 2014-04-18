@@ -17,32 +17,21 @@ func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end, numcpu int) {
 
     i,j,k,l = uint8(0), uint8(0), uint8(0), uint8(0)
     var keys [256][256][256][256][]keyEntry
-    var decrypted [5][12]uint8
+    var decrypted [12]uint8
 
     for ii = 0; ii < 256; ii++ {
-        for x := 0; x < 12; x++ {
-            decrypted[0][x] = ciphertext[x] ^ i
-        }
-
         fmt.Println("Did you think about changing kk<2 and ll<4 back?")
 
         for jj = 0; jj < 256; jj++ {
-            for x := 0; x < 12; x++ {
-                decrypted[1][x] = trippleWES.SboxInv[decrypted[0][x]] ^ j
-            }
-
             // TEST ME WITH 2
             for kk = 0; kk < 4; kk++ {
-                for x := 0; x < 12; x++ {
-                    decrypted[2][x] = trippleWES.SboxInv[decrypted[1][x]] ^ k
-                }
                 // TEST ME WITH 4
                 for ll = 0; ll < 4; ll++ {
                     for x := 0; x < 12; x++ {
-                        decrypted[3][x] = trippleWES.SboxInv[trippleWES.SboxInv[trippleWES.SboxInv[decrypted[2][x]] ^ l]^l]
+                        decrypted[x] = trippleWES.SeptupleDecrypt(ciphertext[x], i,j,k,l,l)
                     }
 
-                    keys[decrypted[3][0]][decrypted[3][1]][decrypted[3][2]][decrypted[3][3]] = append(keys[decrypted[3][0]][decrypted[3][1]][decrypted[3][2]][decrypted[3][3]], keyEntry{ [4]uint8{i,j,k,l}, [8]uint8{decrypted[3][4], decrypted[3][5], decrypted[3][6], decrypted[3][7], decrypted[3][8], decrypted[3][9], decrypted[3][10], decrypted[3][11] } })
+                    keys[decrypted[0]][decrypted[1]][decrypted[2]][decrypted[3]] = append(keys[decrypted[0]][decrypted[1]][decrypted[2]][decrypted[3]], keyEntry{ [4]uint8{i,j,k,l}, [8]uint8{decrypted[4], decrypted[5], decrypted[6], decrypted[7], decrypted[8], decrypted[9], decrypted[10], decrypted[11] } })
 
                     l++
                 }
@@ -103,10 +92,11 @@ func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan 
                         }
 
                         for _, key := range keys[enc[4][0]][enc[4][1]][enc[4][2]][enc[4][3]] {
-                            if testGoodKey(&enc[4], &key) {
+                            if testGoodKey(enc[4], key) {
                                 fmt.Println("\n\n\n FOUNDKEY \n\n\n")
                                 fmt.Printf("Found key: %8b %8b %8b %8b %8b %8b %8b %8b %8b %8b \n", i,j,k,l,m,key.Key[0],key.Key[1],key.Key[2],key.Key[3],key.Key[3])
                                 fmt.Printf("         = %v  %v  %v  %v  %v  %v  %v  %v  %v  %v \n",  i,j,k,l,m,key.Key[0],key.Key[1],key.Key[2],key.Key[3],key.Key[3])
+                                return
                             }
                         }
                         m++
@@ -126,7 +116,7 @@ func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan 
     ch <- id
 }
 
-func testGoodKey(encrypted *[12]uint8, keyEntry *keyEntry) (bool) {
+func testGoodKey(encrypted [12]uint8, keyEntry keyEntry) (bool) {
     // 0, 1 and 2 already match; skip checking those!
     for x := 0; x < 8; x++ {
         if keyEntry.DecryptedValues[x] != encrypted[x + 4] {
