@@ -17,7 +17,6 @@ func main() {
 
     var start int
     var end int
-    var memSteps int
 
     flag.IntVar(&start, "start", 0, "start value for the cracker (inclusive) default is 0")
     flag.IntVar(&end, "end", 256, "end value for the cracker (not inclusive) default is 0, max is 256")
@@ -43,7 +42,7 @@ func main() {
     fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
     fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
     // TEST VALUE
-    ciphertext := [12]uint8{135, 231, 33, 121, 248, 255, 38, 28, 176, 106, 77, 31, }
+    ciphertext := [12]uint8{190, 53, 207, 96, 115, 228, 186, 3, 157, 49, 60, 211, }
     fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
     fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
     fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
