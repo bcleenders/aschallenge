@@ -10,29 +10,21 @@ type keyEntry struct {
     DecryptedValues [8]uint8
 }
 
-func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end, memSteps, numcpu int) {
-    for startKeys := 0; startKeys < 256; startKeys = startKeys + memSteps {
-        endKeys := startKeys + memSteps
-        if endKeys > 256 {
-            endKeys = 256
-        }
-        
-        crackSerial(plaintext, ciphertext, start, end, numcpu, startKeys, endKeys)
-    }
-}
+func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end, numcpu int) {
 
-func crackSerial(plaintext [12]uint8, ciphertext [12]uint8, start, end, numcpu, startKeys, endKeys int) {
     var i,j,k,l uint8
     var ii, jj, kk, ll int
 
-    i,j,k,l = uint8(startKeys), uint8(0), uint8(0), uint8(0)
+    i,j,k,l = uint8(0), uint8(0), uint8(0), uint8(0)
     var keys [256][256][256][256][]keyEntry
     var decrypted [5][12]uint8
 
-    for ii = startKeys; ii < endKeys; ii++ {
+    for ii = 0; ii < 256; ii++ {
         for x := 0; x < 12; x++ {
             decrypted[0][x] = ciphertext[x] ^ i
         }
+
+        fmt.Println("Did you think about changing kk<2 and ll<4 back?")
 
         for jj = 0; jj < 256; jj++ {
             for x := 0; x < 12; x++ {
@@ -40,12 +32,12 @@ func crackSerial(plaintext [12]uint8, ciphertext [12]uint8, start, end, numcpu, 
             }
 
             // TEST ME WITH 2
-            for kk = 0; kk < 256; kk++ {
+            for kk = 0; kk < 2; kk++ {
                 for x := 0; x < 12; x++ {
                     decrypted[2][x] = trippleWES.SboxInv[decrypted[1][x]] ^ k
                 }
                 // TEST ME WITH 4
-                for ll = 0; ll < 256; ll++ {
+                for ll = 0; ll < 4; ll++ {
                     for x := 0; x < 12; x++ {
                         decrypted[3][x] = trippleWES.SboxInv[trippleWES.SboxInv[decrypted[2][x]] ^ l]
                     }
@@ -130,9 +122,7 @@ func parallelCrack(plaintext, ciphertext [12]uint8, start, end, id int, ch chan 
                 }
                 k++
             }
-            if (j+1)%16 == 0 {
-                fmt.Printf(" (#%v.%v) ",i,j)
-            }
+            fmt.Printf(" (#%v.%v) ",i,j)
             j++
         }
         fmt.Printf("\nFinished level 1 (#%v)round breaking keys\n",i)

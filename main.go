@@ -21,7 +21,6 @@ func main() {
 
     flag.IntVar(&start, "start", 0, "start value for the cracker (inclusive) default is 0")
     flag.IntVar(&end, "end", 256, "end value for the cracker (not inclusive) default is 0, max is 256")
-    flag.IntVar(&memSteps, "memSteps", 256, "number of ")
     flag.Parse()
     end = end % 257
 
@@ -32,25 +31,25 @@ func main() {
         0x4a, 0x4b, 0x4c,
     }
 
-    ciphertext := [12]uint8{
-        0x13, 0x2c, 0xf1, 0xa4, 
-        0xdc, 0xfa, 0xdb, 0x6d, 
-        0x49, 0x9a, 0x58, 0x91, 
-    }
+    // ciphertext := [12]uint8{
+    //     0x13, 0x2c, 0xf1, 0xa4, 
+    //     0xdc, 0xfa, 0xdb, 0x6d, 
+    //     0x49, 0x9a, 0x58, 0x91, 
+    // }
 
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // // TEST VALUE
-    // ciphertext := [12]uint8{135, 231, 33, 121, 248, 255, 38, 28, 176, 106, 77, 31, }
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
-    // fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    // TEST VALUE
+    ciphertext := [12]uint8{135, 231, 33, 121, 248, 255, 38, 28, 176, 106, 77, 31, }
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
+    fmt.Println("WARNING !!! NOT REAL KEY VALUES!!!!!!!!!!!!!!!!")
 
     fmt.Printf("Start cracking from i=%v to i=%v\n", start, end)
-    cracker.Crack(plaintext, ciphertext, start, end, memSteps, runtime.NumCPU())
+    cracker.Crack(plaintext, ciphertext, start, end, runtime.NumCPU())
 }
