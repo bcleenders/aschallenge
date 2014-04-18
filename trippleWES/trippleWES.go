@@ -42,6 +42,16 @@ func Decrypt(ciphertext, key0, key1, key2, key3, key4, key5, key6, key7, key8, k
     return ciphertext
 }
 
+func QuadDecrypt(ciphertext uint8, key6, key7, key8, key9 uint8) (uint8) {
+    ciphertext ^= key9
+    ciphertext = SboxInv[ciphertext] ^ key8
+    ciphertext = SboxInv[ciphertext] ^ key7
+    ciphertext = SboxInv[ciphertext] ^ key6
+    ciphertext = SboxInv[ciphertext]
+
+    return ciphertext
+}
+
 func SeptupleDecrypt(ciphertext uint8, key5, key6, key7, key8, key9 uint8) (uint8) {
     ciphertext ^= key9
     ciphertext = SboxInv[ciphertext] ^ key8
