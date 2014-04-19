@@ -11,15 +11,20 @@ type keyEntry struct {
 }
 
 func Crack(plaintext [12]uint8, ciphertext [12]uint8, start, end, numcpu int) {
+    // CrackSerial(plaintext, ciphertext, start, end, 0, 110, numcpu)
+    CrackSerial(plaintext, ciphertext, start, end, 110, 200, numcpu)
+    CrackSerial(plaintext, ciphertext, start, end, 200, 256, numcpu)
+}
 
+func CrackSerial(plaintext [12]uint8, ciphertext [12]uint8, start, end, starti, endi, numcpu int) {
     var i,j,k,l uint8
     var ii, jj, kk, ll int
 
-    i,j,k,l = uint8(0), uint8(0), uint8(0), uint8(0)
+    i,j,k,l = uint8(starti), uint8(0), uint8(0), uint8(0)
     var keys [256][256][256][256][]keyEntry
     var decrypted [12]uint8
 
-    for ii = 0; ii < 256; ii++ {
+    for ii = starti; ii < endi; ii++ {
         for jj = 0; jj < 256; jj++ {
             for kk = 0; kk < 256; kk++ {
                 for ll = 0; ll < 256; ll++ {
